@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: routepulse-india-api
+    runtime: node
+    rootDir: api
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: FRONTEND_ORIGIN
+        value: https://vineetgupta65488-cell.github.io
+      - key: DELHI_GTFS_URL
+        sync: false
+      - key: MAHARASHTRA_GTFS_URL
+        sync: false
