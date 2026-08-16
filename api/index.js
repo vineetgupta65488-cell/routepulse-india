@@ -1,0 +1,19 @@
+import express from 'express';
+import JSZip from 'jszip';
+import fetch from 'node-fetch';
+
+const app=express();app.use(express.json());
+const PORT=process.env.PORT||3000;
+const feeds=[
+ {id:'delhi',state:'Delhi',name:'Delhi public GTFS',url:process.env.DELHI_GTFS_URL},
+ {id:'maharashtra',state:'Maharashtra',name:'Maharashtra public GTFS',url:process.env.MAHARASHTRA_GTFS_URL}
+].filter(x=>x.url);
+const db=new Map();
+function csv(text){const rows=[];let row=[],cell='',q=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(c==='"'&&q&&n==='"'){cell+='"';i++;continue}if(c==='"'){q=!q;continue}if(c===','&&!q){row.push(cell);cell='';continue}if((c==='\n'||c==='\r')&&!q){if(c==='\r'&&n==='\n')i++;row.push(cell);if(row.some(v=>v!==''))rows.push(row);row=[];cell='';continue}cell+=c}if(cell||row.length){row.push(cell);rows.push(row)}const h=rows.shift()||[];return rows.map(r=>Object.fromEntries(h.map((k,i)=>[k,r[i]??''])))}
+async function ingest(feed){const res=await fetch(feed.url);if(!res.ok)throw new Error(`Feed HTTP ${res.status}`);const zip=await JSZip.loadAsync(await res.arrayBuffer());const out={routes:[],stops:[],trips:[],stop_times:[]};for(const f of Object.keys(zip.files)){if(out[f.replace('.txt','')])out[f.replace('.txt','')]=csv(await zip.files[f].async('text'))}db.set(feed.id,{...feed,...out,updated:new Date().toISOString()});return db.get(feed.id)}
+function findStop(feed,q){const s=q.toLowerCase();return feed.stops.filter(x=>(x.stop_name||'').toLowerCase().includes(s)).slice(0,20)}
+function journeys(feed,from,to){const fs=findStop(feed,from),ts=findStop(feed,to);if(!fs.length||!ts.length)return[];const F=new Set(fs.map(x=>x.stop_id)),T=new Set(ts.map(x=>x.stop_id));const byTrip={};for(const st of feed.stop_times){(byTrip[st.trip_id]??=[]).push(st)}const direct=[];for(const [tripId,sts0] of Object.entries(byTrip)){const sts=sts0.sort((a,b)=>(a.stop_sequence||0)-(b.stop_sequence||0));let a=-1,b=-1;for(let i=0;i<sts.length;i++){if(a<0&&F.has(sts[i].stop_id))a=i;if(a>=0&&T.has(sts[i].stop_id)){b=i;break}}if(a>=0&&b>a){const tr=feed.trips.find(x=>x.trip_id===tripId),r=tr&&feed.routes.find(x=>x.route_id===tr.route_id);if(r)direct.push({type:'direct',legs:[{route_id:r.route_id,route_number:r.route_short_name||r.route_long_name||null,agency_id:r.agency_id||null,from:sts[a].stop_id,to:sts[b].stop_id,stop_ids:sts.slice(a,b+1).map(x=>x.stop_id)}]})}}return direct.slice(0,10)}
+app.get('/health',(req,res)=>res.json({ok:true,feeds:feeds.map(f=>({id:f.id,state:f.state,loaded:db.has(f.id)}))}));
+app.post('/admin/feeds/:id/refresh',async(req,res)=>{const f=feeds.find(x=>x.id===req.params.id);if(!f)return res.status(404).json({error:'Unknown feed'});try{const d=await ingest(f);res.json({ok:true,id:f.id,updated:d.updated,routes:d.routes.length,stops:d.stops.length,trips:d.trips.length,stop_times:d.stop_times.length})}catch(e){res.status(502).json({error:e.message})}});
+app.get('/api/v1/journeys',async(req,res)=>{const {state,from,to}=req.query;if(!state||!from||!to)return res.status(400).json({error:'state, from and to are required'});const f=feeds.find(x=>x.state.toLowerCase()===state.toLowerCase());if(!f)return res.json({status:'no_feed',journeys:[]});if(!db.has(f.id))try{await ingest(f)}catch(e){return res.status(502).json({status:'feed_error',message:e.message,journeys:[]})}const js=journeys(db.get(f.id),from,to);res.json({status:js.length?'ok':'no_verified_journey',source:f.name,journeys:js})});
+app.listen(PORT,()=>console.log(`RoutePulse API listening on ${PORT}`));
