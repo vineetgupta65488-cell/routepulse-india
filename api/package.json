@@ -1,1 +1,1 @@
-{"name":"routepulse-api","version":"1.0.0","private":true,"type":"module","scripts":{"start":"node index.js"},"dependencies":{"@googlemaps/google-maps-services-js":"latest","express":"latest","gtfs-realtime-bindings":"latest","jszip":"latest","node-fetch":"latest"}}
+{"name":"routepulse-api","version":"1.0.0","private":true,"type":"module","scripts":{"start":"node index.js"},"engines":{"node":">=20 <25"},"dependencies":{"cors":"latest","express":"latest","gtfs-realtime-bindings":"latest","jszip":"latest","node-fetch":"latest"}}
