@@ -1,0 +1,13 @@
+/* Public GTFS feed catalog. The frontend may import these feeds only when the user explicitly enables online feed loading. Service dates and coverage are shown so stale feeds are not presented as current. */
+window.VERIFIED_PUBLIC_FEEDS=[
+ {operator:'APSRTC',state:'Andhra Pradesh',url:'https://github.com/Neo2308/apsrtc-gtfs/raw/refs/heads/main/gtfs/gtfs.zip',routes:3075,verified:'2026-05-31',active_window:'2026-05-28 to 2026-06-28',source:'Mobility Database'},
+ {operator:'Delhi Transport Corporation',state:'Delhi',url:'https://raw.githubusercontent.com/transitland/gtfs-archives-not-hosted-elsewhere/3db26c0092b6efeb1886a99b4fc0765122b0282b/delhi-bus.zip',routes:2964,verified:'2026-05-11',active_window:'2022-01-01 to 2024-01-01',source:'Mobility Database'},
+ {operator:'BEST + KDMT',state:'Maharashtra',url:'https://github.com/croyla/mumbai-gtfs/raw/refs/heads/main/gtfs_compat.zip',routes:809,verified:'2026-07-20',active_window:'2026-07-19 to 2027-01-15',source:'Mobility Database'},
+ {operator:'TGSRTC',state:'Telangana',url:'https://data.opencity.in/dataset/88e2d145-7ec6-4666-88dd-6cf18b18312e/resource/1b0d18bb-b2fb-4a79-8ed0-1e071da5790c/download/telangana_opendata_gtfs_tgsrtc_08_february_2026.zip',routes:1031,verified:'2026-07-20',active_window:'2026-02-01 to 2031-02-01',source:'Mobility Database'},
+ {operator:'BMTC / Bengaluru feeds',state:'Karnataka',url:'https://busmaps.com/en/india/feedlist',routes:4312,verified:'2026-07-2026',active_window:'active until 2027-07',source:'BusMaps / GTFS catalog'},
+ {operator:'PMPML',state:'Maharashtra',url:'https://busmaps.com/en/india/feedlist',routes:246,verified:'2026-07-2026',active_window:'active until 2027-01',source:'BusMaps / GTFS catalog'},
+ {operator:'Rajkot Rajpath',state:'Gujarat',url:'https://busmaps.com/en/india/feedlist',routes:85,verified:'2026-07-2026',active_window:'active until 2026-12',source:'BusMaps / GTFS catalog'},
+ {operator:'Hubli-Dharwad Rapid System',state:'Karnataka',url:'https://busmaps.com/en/india/feedlist',routes:336,verified:'2026-07-2026',active_window:'active until 2026-12',source:'BusMaps / GTFS catalog'},
+ {operator:'Transport-Ind Mumbai',state:'Maharashtra',url:'https://busmaps.com/en/india/feedlist',routes:621,verified:'2026-07-2026',active_window:'active until 2026-12',source:'BusMaps / GTFS catalog'},
+ {operator:'Kadamba Transport Corporation',state:'Goa',url:'https://busmaps.com/en/india/feedlist',routes:474,verified:'2026-07-2026',active_window:'expired 2025-08',source:'BusMaps / GTFS catalog — stale; do not present as current'}
+];
